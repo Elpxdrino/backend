@@ -190,80 +190,80 @@ const fundAccount = async (req, res) => {
   }
 };
 
-const withdraw = async (req, res) => {
-  const { method, pin, amount, currency, wallet } = req.body;
-  const email = req.user.user.email;
+// const withdraw = async (req, res) => {
+//   const { method, pin, amount, currency, wallet } = req.body;
+//   const email = req.user.user.email;
 
-  try {
-    const UserDB = await User.findOne({ email });
+//   try {
+//     const UserDB = await User.findOne({ email });
 
-    console.log(UserDB.amount);
+//     console.log(UserDB.amount);
 
-    const amountToDeduct = Number(amount);
+//     const amountToDeduct = Number(amount);
 
-    if (isNaN(amountToDeduct)) {
-      return res.status(404).json({ message: 'Invalid amount' });
-    }
+//     if (isNaN(amountToDeduct)) {
+//       return res.status(404).json({ message: 'Invalid amount' });
+//     }
 
-    if (UserDB.amount < amountToDeduct) {
-      return res.status(404).json({ message: 'Insufficient Balance' });
-    }
+//     if (UserDB.amount < amountToDeduct) {
+//       return res.status(404).json({ message: 'Insufficient Balance' });
+//     }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { email, amount: { $gte: amountToDeduct } }, // Ensure the user has enough balance
-      { $inc: { amount: -amountToDeduct } }, // Decrement the balance
-      { new: true }
-    );
+//     const updatedUser = await User.findOneAndUpdate(
+//       { email, amount: { $gte: amountToDeduct } }, // Ensure the user has enough balance
+//       { $inc: { amount: -amountToDeduct } }, // Decrement the balance
+//       { new: true }
+//     );
   
 
-      const addHistory = new History({
-        email,
-        type: "Withdrawal",
-        amount,
-        coin: currency,
-        status: 'Pending',
-        method,
-      });
+//       const addHistory = new History({
+//         email,
+//         type: "Withdrawal",
+//         amount,
+//         coin: currency,
+//         status: 'Pending',
+//         method,
+//       });
 
-      addHistory.save();
+//       addHistory.save();
 
-      console.log(addHistory);
+//       console.log(addHistory);
 
-      const doc = await Dashboard.findOne({ email });
+//       const doc = await Dashboard.findOne({ email });
 
-      if (!doc) {
-        return res.status(404).json({ message: 'Watchlist not found' });
-      }
+//       if (!doc) {
+//         return res.status(404).json({ message: 'Watchlist not found' });
+//       }
 
-      const existingIndex = doc.walletAddress.findIndex((w) => w.coin == coin);
+//       const existingIndex = doc.walletAddress.findIndex((w) => w.coin == coin);
 
-      if (existingIndex !== -1) {
-        // Update existing wallet address if it already exists
+//       if (existingIndex !== -1) {
+//         // Update existing wallet address if it already exists
 
-        doc.walletAddress[existingIndex].amount += crypto;
-      } else {
-        // Add new wallet address if it doesn't exist
-        doc.walletAddress.push({
-          coin: crypto,
-          amount,
-        });
-      }
+//         doc.walletAddress[existingIndex].amount += crypto;
+//       } else {
+//         // Add new wallet address if it doesn't exist
+//         doc.walletAddress.push({
+//           coin: crypto,
+//           amount,
+//         });
+//       }
 
-      console.log(doc);
+//       console.log(doc);
 
-      await doc.save();
+//       await doc.save();
 
-      res.send(updatedAmount);
-    } else {
-      res.status(400).send({ msg: 'User does not exist' });
-    }
+//       res.send(updatedAmount);
+//     } else {
+//       res.status(400).send({ msg: 'User does not exist' });
+//     }
 
-    //   res.send(201);
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-};
+//     //   res.send(201);
+//   } catch (error) {
+//     console.error(error);
+//     res.sendStatus(500);
+//   }
+// };
 
 const updateBank = async (req, res) => {
   const { bankDetails } = req.body;
