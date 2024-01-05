@@ -222,7 +222,7 @@ const withdraw = async (req, res) => {
 
     // add to history 
     await new History({
-      email, 
+      email,
       type: "Withdrawal",
       amount,
       coin: coin,
@@ -233,45 +233,45 @@ const withdraw = async (req, res) => {
     return res.status(200).json({ message: "Request for withdrawal received, await payout" })
   } catch (error) {
     console.error(error);
-    res.sendStatus(500);
+    res.send(500).json({ error: "internal server error" });
   }
 };
 
 const updateBank = async (req, res) => {
   const { bankDetails } = req.body;
   const email = req.user.user.email;
+  try {
+    // Create a new object with only the non-blank fields from the request body
+    const updatedBankDetails = {};
+    if (bankDetails.bank !== '') updatedBankDetails.bank = bankDetails.bank;
+    if (bankDetails.bank_addr !== '')
+      updatedBankDetails.bank_addr = bankDetails.bank_addr;
+    if (bankDetails.bank_city !== '')
+      updatedBankDetails.bank_city = bankDetails.bank_city;
+    if (bankDetails.bank_country !== '')
+      updatedBankDetails.bank_country = bankDetails.bank_country;
+    if (bankDetails.bank_acctNum !== '')
+      updatedBankDetails.bank_acctNum = bankDetails.bank_acctNum;
+    if (bankDetails.bank_code !== '')
+      updatedBankDetails.bank_code = bankDetails.bank_code;
+    if (bankDetails.country !== '')
+      updatedBankDetails.country = bankDetails.country;
+    if (bankDetails.addr !== '') updatedBankDetails.addr = bankDetails.addr;
+    if (bankDetails.city !== '') updatedBankDetails.city = bankDetails.city;
 
-  // Create a new object with only the non-blank fields from the request body
-  const updatedBankDetails = {};
-  if (bankDetails.bank !== '') updatedBankDetails.bank = bankDetails.bank;
-  if (bankDetails.bank_addr !== '')
-    updatedBankDetails.bank_addr = bankDetails.bank_addr;
-  if (bankDetails.bank_city !== '')
-    updatedBankDetails.bank_city = bankDetails.bank_city;
-  if (bankDetails.bank_country !== '')
-    updatedBankDetails.bank_country = bankDetails.bank_country;
-  if (bankDetails.bank_acctNum !== '')
-    updatedBankDetails.bank_acctNum = bankDetails.bank_acctNum;
-  if (bankDetails.bank_code !== '')
-    updatedBankDetails.bank_code = bankDetails.bank_code;
-  if (bankDetails.country !== '')
-    updatedBankDetails.country = bankDetails.country;
-  if (bankDetails.addr !== '') updatedBankDetails.addr = bankDetails.addr;
-  if (bankDetails.city !== '') updatedBankDetails.city = bankDetails.city;
+    // Update the user document with the non-blank fields
+    await Dashboard.findOneAndUpdate(
+      { email },
+      { $set: updatedBankDetails },
+      { new: true }
+    )
+    res.json(updatedUser);
 
-  // Update the user document with the non-blank fields
-  Dashboard.findOneAndUpdate(
-    { email },
-    { $set: updatedBankDetails },
-    { new: true }
-  )
-    .then((updatedUser) => {
-      res.json(updatedUser);
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send('Error updating user');
-    });
+
+  } catch (error) {
+    console.error(error);
+    res.send(500).json({ error: "internal server error" });
+  }
 };
 
 const updateProfile = async (req, res) => {
@@ -336,13 +336,18 @@ const coinInitRoute = async (req, res) => {
 
 const getHistory = async (req, res) => {
   const email = req.user.user.email
-  const doc = await History.find({ email });
+  try {
+    const doc = await History.find({ email });
 
-  if (!doc) {
-    return res.status(404).json({ message: 'History not found' });
+    if (!doc) {
+      return res.status(404).json({ message: 'History not found' });
+    }
+
+    res.send(doc.reverse());
+  } catch {
+    console.error(error);
+    res.send(500).json({ error: "internal server error" });
   }
-
-  res.send(doc.reverse());
 };
 
 module.exports = {

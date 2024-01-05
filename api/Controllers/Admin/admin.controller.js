@@ -38,17 +38,22 @@ const getHistory = async (req, res) => {
 
 const getWithdrawalHistory = async (req, res) => {
   const { email } = req.body;
-  const doc = await History.find({
-    type: "Withdrawal",
-    status: "Pending"
-  });
+  try {
+    const doc = await History.find({
+      type: "Withdrawal",
+      status: "Pending"
+    });
 
 
-  if (!doc) {
-    return res.status(404).json({ message: 'No Pending Withdrawals' });
+    if (!doc) {
+      return res.status(404).json({ message: 'No Pending Withdrawals' });
+    }
+
+    res.send(doc);
+  } catch {
+    console.error(error);
+    res.send(500).json({ error: "internal server error" });
   }
-
-  res.send(doc);
 };
 
 const approveWithdrawal = async (req, res) => {
@@ -57,17 +62,22 @@ const approveWithdrawal = async (req, res) => {
     return res.status(400).send({ error: 'id is required' })
   }
 
-  const history = await History.findOne({ _id });
-  console.log(history.amount)
-  if (!history) return res.status(404).send({ error: 'Request not found' })
+  try {
+    const history = await History.findOne({ _id });
+    console.log(history.amount)
+    if (!history) return res.status(404).send({ error: 'Request not found' })
 
-  if (received) {
-    await History.updateOne({ _id: _id }, { status: 'Paid', received: received });
-  } else {
-    await History.updateOne({ _id: _id }, { status: 'Paid', received: history.amount });
+    if (received) {
+      await History.updateOne({ _id: _id }, { status: 'Paid', received: received });
+    } else {
+      await History.updateOne({ _id: _id }, { status: 'Paid', received: history.amount });
+    }
+
+    return res.status(200).send({ message: 'successful' });
+  } catch {
+    console.error(error);
+    res.send(500).json({ error: "internal server error" });
   }
-
-  return res.status(200).send({ message: 'successful' });
 }
 
 const declineWithdrawal = async (req, res) => {
@@ -76,35 +86,40 @@ const declineWithdrawal = async (req, res) => {
     return res.status(400).send({ message: 'id is required' })
   }
 
-  const history = await History.findOne({ _id });
+  try {
+    const history = await History.findOne({ _id });
 
-  if (!history) return res.status(404).send({ message: 'Request not found' })
+    if (!history) return res.status(404).send({ message: 'Request not found' })
 
-   // check if user dashboard exists
-   const doc = await Dashboard.findOne({ email:history.email });
-   if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
+    // check if user dashboard exists
+    const doc = await Dashboard.findOne({ email: history.email });
+    if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
 
-   // check if user has enough amount for coin 
-   const existingIndex = doc.walletAddress.findIndex((w) => w.coin == history.coin);
-   if (existingIndex === -1){
-    doc.walletAddress.push({
-      coin: history.coin,
-      amount: history.amount,
-    });
-   }else{
-   // deduct withdrawn amount
-   doc.walletAddress[existingIndex].amount += Number(history.amount);
-   }
+    // check if user has enough amount for coin 
+    const existingIndex = doc.walletAddress.findIndex((w) => w.coin == history.coin);
+    if (existingIndex === -1) {
+      doc.walletAddress.push({
+        coin: history.coin,
+        amount: history.amount,
+      });
+    } else {
+      // deduct withdrawn amount
+      doc.walletAddress[existingIndex].amount += Number(history.amount);
+    }
 
-   await doc.save()
+    await doc.save()
 
-  if(note){
-    await History.updateOne({ _id: _id }, { status: 'Declined', note: note });
-  }else{
-    await History.updateOne({ _id: _id }, { status: 'Declined', note: "" });
+    if (note) {
+      await History.updateOne({ _id: _id }, { status: 'Declined', note: note });
+    } else {
+      await History.updateOne({ _id: _id }, { status: 'Declined', note: "" });
+    }
+
+    return res.status(200).send({ message: 'successful' });
+  } catch {
+    console.error(error);
+    res.send(500).json({ error: "internal server error" });
   }
-
-  return res.status(200).send({ message: 'successful' });
 }
 
 const getDashBoardData = async (req, res) => {
