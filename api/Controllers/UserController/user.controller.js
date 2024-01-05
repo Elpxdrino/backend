@@ -57,8 +57,10 @@ const addWalletAddress = async (req, res) => {
       if (existingIndex !== -1) {
         // Update existing wallet address if it already exists
         doc.walletAddress[existingIndex].addr = walletAddress[i].addr;
+        doc.walletAddress[existingIndex].tag = walletAddress[i].tag;
       } else {
         // Add new wallet address if it doesn't exist
+        walletAddress[i].amount = 0;
         doc.walletAddress.push(walletAddress[i]);
       }
     }
@@ -220,7 +222,7 @@ const withdraw = async (req, res) => {
 
     // add to history 
     await new History({
-      email,
+      email, 
       type: "Withdrawal",
       amount,
       coin: coin,
@@ -239,26 +241,38 @@ const updateBank = async (req, res) => {
   const { bankDetails } = req.body;
   const email = req.user.user.email;
 
-  // Filter out blank fields from bankDetails
-  const updatedBankDetails = Object.fromEntries(
-    Object.entries(bankDetails).filter(([key, value]) => value !== '')
-  );
+  // Create a new object with only the non-blank fields from the request body
+  const updatedBankDetails = {};
+  if (bankDetails.bank !== '') updatedBankDetails.bank = bankDetails.bank;
+  if (bankDetails.bank_addr !== '')
+    updatedBankDetails.bank_addr = bankDetails.bank_addr;
+  if (bankDetails.bank_city !== '')
+    updatedBankDetails.bank_city = bankDetails.bank_city;
+  if (bankDetails.bank_country !== '')
+    updatedBankDetails.bank_country = bankDetails.bank_country;
+  if (bankDetails.bank_acctNum !== '')
+    updatedBankDetails.bank_acctNum = bankDetails.bank_acctNum;
+  if (bankDetails.bank_code !== '')
+    updatedBankDetails.bank_code = bankDetails.bank_code;
+  if (bankDetails.country !== '')
+    updatedBankDetails.country = bankDetails.country;
+  if (bankDetails.addr !== '') updatedBankDetails.addr = bankDetails.addr;
+  if (bankDetails.city !== '') updatedBankDetails.city = bankDetails.city;
 
-  try {
-    // Update the user document with the non-blank fields
-    const updatedUser = await Dashboard.findOneAndUpdate(
-      { email },
-      { $set: updatedBankDetails },
-      { new: true }
-    );
-
-    res.json(updatedUser);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error updating user');
-  }
+  // Update the user document with the non-blank fields
+  Dashboard.findOneAndUpdate(
+    { email },
+    { $set: updatedBankDetails },
+    { new: true }
+  )
+    .then((updatedUser) => {
+      res.json(updatedUser);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error updating user');
+    });
 };
-
 
 const updateProfile = async (req, res) => {
   const { userDetails } = req.body;
@@ -321,14 +335,14 @@ const coinInitRoute = async (req, res) => {
 };
 
 const getHistory = async (req, res) => {
-  const { email } = req.body;
+  const email = req.user.user.email
   const doc = await History.find({ email });
 
   if (!doc) {
     return res.status(404).json({ message: 'History not found' });
   }
 
-  res.send(doc);
+  res.send(doc.reverse());
 };
 
 module.exports = {

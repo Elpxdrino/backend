@@ -7,6 +7,8 @@ const {
   changePassword,
   getHistory,
   getWithdrawalHistory,
+  approveWithdrawal,
+  declineWithdrawal,
   getAllUser,
   changeBalance,
   deleteUser,
@@ -31,7 +33,12 @@ adminRoute.post('/changeBalance', isAdmin, changeBalance);
 
 adminRoute.post('/getHistory', isAdmin, getHistory);
 
-adminRoute.get('/getWithdrawalHistory', isAdmin, getWithdrawalHistory)
+adminRoute.get('/getWithdrawalRequest', isAdmin, getWithdrawalHistory)
+
+adminRoute.put('/approveWithdrawal', isAdmin, approveWithdrawal)
+
+adminRoute.put('/declineWithdrawal', isAdmin, declineWithdrawal)
+
 
 adminRoute.get('/getAllUser', isAdmin, getAllUser);
 

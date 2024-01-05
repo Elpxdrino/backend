@@ -17,10 +17,10 @@ const userRoute = require('express').Router();
 
 userRoute.get('/getData', Authenticate, getDashBoardData);
 userRoute.get('/getUser', Authenticate, getUser);
-userRoute.put('/fundAccount', fundAccount);
+userRoute.put('/fundAccount',Authenticate, fundAccount);
 userRoute.put('/withdraw', Authenticate, withdraw);
 userRoute.post('/coinbase', Authenticate, coinInitRoute);
-userRoute.post('/getHistory', Authenticate, getHistory);
+userRoute.get('/getHistory', Authenticate, getHistory);
 userRoute.put('/addWatchList', Authenticate, addWatchList);
 userRoute.put('/updateBank', Authenticate, updateBank);
 userRoute.put('/addWalletAddress', Authenticate, addWalletAddress);

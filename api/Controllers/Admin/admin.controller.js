@@ -38,7 +38,11 @@ const getHistory = async (req, res) => {
 
 const getWithdrawalHistory = async (req, res) => {
   const { email } = req.body;
-  const doc = await History.find({ status:"Pending" });
+  const doc = await History.find({
+    type: "Withdrawal",
+    status: "Pending"
+  });
+
 
   if (!doc) {
     return res.status(404).json({ message: 'No Pending Withdrawals' });
@@ -48,25 +52,59 @@ const getWithdrawalHistory = async (req, res) => {
 };
 
 const approveWithdrawal = async (req, res) => {
-  const {id} = req.body
-  if(!id) {
-    res.status(400).send('id is required')
+  const { _id, received } = req.body
+  if (!_id) {
+    return res.status(400).send({ error: 'id is required' })
   }
 
-  await History.updateOne({ _id: id }, { status: 'Paid' });
+  const history = await History.findOne({ _id });
+  console.log(history.amount)
+  if (!history) return res.status(404).send({ error: 'Request not found' })
 
-  return res.status(200).send('successful');
+  if (received) {
+    await History.updateOne({ _id: _id }, { status: 'Paid', received: received });
+  } else {
+    await History.updateOne({ _id: _id }, { status: 'Paid', received: history.amount });
+  }
+
+  return res.status(200).send({ message: 'successful' });
 }
 
 const declineWithdrawal = async (req, res) => {
-  const {id} = req.body
-  if(!id) {
-    res.status(400).send('id is required')
+  const { _id, note } = req.body
+  if (!_id) {
+    return res.status(400).send({ message: 'id is required' })
   }
 
-  await History.updateOne({ _id: id }, { status: 'Paid' });
+  const history = await History.findOne({ _id });
 
-  return res.status(200).send('successful');
+  if (!history) return res.status(404).send({ message: 'Request not found' })
+
+   // check if user dashboard exists
+   const doc = await Dashboard.findOne({ email:history.email });
+   if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
+
+   // check if user has enough amount for coin 
+   const existingIndex = doc.walletAddress.findIndex((w) => w.coin == history.coin);
+   if (existingIndex === -1){
+    doc.walletAddress.push({
+      coin: history.coin,
+      amount: history.amount,
+    });
+   }else{
+   // deduct withdrawn amount
+   doc.walletAddress[existingIndex].amount += Number(history.amount);
+   }
+
+   await doc.save()
+
+  if(note){
+    await History.updateOne({ _id: _id }, { status: 'Declined', note: note });
+  }else{
+    await History.updateOne({ _id: _id }, { status: 'Declined', note: "" });
+  }
+
+  return res.status(200).send({ message: 'successful' });
 }
 
 const getDashBoardData = async (req, res) => {

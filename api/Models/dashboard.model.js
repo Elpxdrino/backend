@@ -27,6 +27,7 @@ const dashboardSchema = new mongoose.Schema({
       {
         coin: String,
         addr: String,
+        tag: String,
         amount: Number,
       },
     ],
@@ -34,6 +35,7 @@ const dashboardSchema = new mongoose.Schema({
       {
         coin: 'ETH',
         addr: '',
+        tag: '',
         amount: 0,
       },
     ],

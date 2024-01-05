@@ -3,10 +3,6 @@ const mongoose = require('mongoose');
 const historySchema = new mongoose.Schema(
   {
     //   user
-    id: {
-      type: Number,
-      required: true,
-    },
     email: {
       type: String,
       required: true,
@@ -26,7 +22,10 @@ const historySchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-
+    note: {
+      type: String,
+      default: '',
+    },
     status: {
       type: String,
       default: 'Not Paid',
