@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const historySchema = new mongoose.Schema(
   {
     //   user
+    id: {
+      type: Number,
+      required: true,
+    },
     email: {
       type: String,
       required: true,

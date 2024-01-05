@@ -36,6 +36,39 @@ const getHistory = async (req, res) => {
   res.send(doc);
 };
 
+const getWithdrawalHistory = async (req, res) => {
+  const { email } = req.body;
+  const doc = await History.find({ status:"Pending" });
+
+  if (!doc) {
+    return res.status(404).json({ message: 'No Pending Withdrawals' });
+  }
+
+  res.send(doc);
+};
+
+const approveWithdrawal = async (req, res) => {
+  const {id} = req.body
+  if(!id) {
+    res.status(400).send('id is required')
+  }
+
+  await History.updateOne({ _id: id }, { status: 'Paid' });
+
+  return res.status(200).send('successful');
+}
+
+const declineWithdrawal = async (req, res) => {
+  const {id} = req.body
+  if(!id) {
+    res.status(400).send('id is required')
+  }
+
+  await History.updateOne({ _id: id }, { status: 'Paid' });
+
+  return res.status(200).send('successful');
+}
+
 const getDashBoardData = async (req, res) => {
   const { email } = req.body;
 
@@ -243,6 +276,9 @@ module.exports = {
   getUser,
   changePassword,
   getHistory,
+  getWithdrawalHistory,
+  approveWithdrawal,
+  declineWithdrawal,
   getAllUser,
   changeBalance,
   deleteUser,

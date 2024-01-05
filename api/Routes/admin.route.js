@@ -6,6 +6,7 @@ const {
   updateProfile,
   changePassword,
   getHistory,
+  getWithdrawalHistory,
   getAllUser,
   changeBalance,
   deleteUser,
@@ -29,6 +30,8 @@ adminRoute.post('/changePassword', isAdmin, changePassword);
 adminRoute.post('/changeBalance', isAdmin, changeBalance);
 
 adminRoute.post('/getHistory', isAdmin, getHistory);
+
+adminRoute.get('/getWithdrawalHistory', isAdmin, getWithdrawalHistory)
 
 adminRoute.get('/getAllUser', isAdmin, getAllUser);
 
