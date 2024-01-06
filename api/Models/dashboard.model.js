@@ -73,6 +73,9 @@ const dashboardSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  full_name:{
+    type: String,
+  }
 });
 
 const Dashboard = mongoose.model('Dashboard', dashboardSchema);

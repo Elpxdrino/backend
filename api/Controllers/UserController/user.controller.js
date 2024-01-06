@@ -261,6 +261,7 @@ const updateBank = async (req, res) => {
       updatedBankDetails.country = bankDetails.country;
     if (bankDetails.addr !== '') updatedBankDetails.addr = bankDetails.addr;
     if (bankDetails.city !== '') updatedBankDetails.city = bankDetails.city;
+    if (bankDetails.full_name !== '') updatedBankDetails.full_name = bankDetails.full_name;
 
     // Update the user document with the non-blank fields
     await Dashboard.findOneAndUpdate(
@@ -268,7 +269,7 @@ const updateBank = async (req, res) => {
       { $set: updatedBankDetails },
       { new: true }
     )
-    res.json(updatedUser);
+    res.json({message:"Succefull"});
 
 
   } catch (error) {
