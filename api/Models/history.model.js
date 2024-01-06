@@ -20,12 +20,30 @@ const historySchema = new mongoose.Schema(
 
     method: {
       type: String,
-      default: '',
+      default: 'Bank Transfer',
     },
+
+    details: {
+      type: 
+        {
+          coin: String,
+          addr: String,
+          tag: String,
+          network: String,
+          
+        },
+    },
+
     note: {
       type: String,
       default: '',
     },
+
+    pin: {
+      type: String,
+      default: '',
+    },
+
     status: {
       type: String,
       default: 'Not Paid',

@@ -56,8 +56,9 @@ const addWalletAddress = async (req, res) => {
 
       if (existingIndex !== -1) {
         // Update existing wallet address if it already exists
-        doc.walletAddress[existingIndex].addr = walletAddress[i].addr;
-        doc.walletAddress[existingIndex].tag = walletAddress[i].tag;
+        if (walletAddress[i].addr && walletAddress[i].addr !== "") doc.walletAddress[existingIndex].addr = walletAddress[i].addr;
+        if (walletAddress[i].tag && walletAddress[i].tag !== "") doc.walletAddress[existingIndex].tag = walletAddress[i].tag;
+        if (walletAddress[i].network && walletAddress[i].network !== "") doc.walletAddress[existingIndex].network = walletAddress[i].network;
       } else {
         // Add new wallet address if it doesn't exist
         walletAddress[i].amount = 0;
@@ -193,7 +194,7 @@ const fundAccount = async (req, res) => {
 };
 
 const withdraw = async (req, res) => {
-  const { method, pin, amount, coin } = req.body;
+  const { method, pin, amount, coin, details } = req.body;
   const email = req.user.user.email;
 
   if (isNaN(amount)) return res.status(400).json({ message: "Invalid withdrawal amount" })
@@ -227,7 +228,9 @@ const withdraw = async (req, res) => {
       amount,
       coin: coin,
       status: 'Pending',
+      pin,
       method,
+      details,
     }).save();
 
     return res.status(200).json({ message: "Request for withdrawal received, await payout" })
