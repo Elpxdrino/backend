@@ -339,20 +339,30 @@ const coinInitRoute = async (req, res) => {
 };
 
 const getHistory = async (req, res) => {
-  const email = req.user.user.email
+  const email = req.user.user.email;
   try {
-    const doc = await History.find({ email: req.user.user.admin ? undefined : email });
+    let query = { email };
 
-    if (!doc) {
+    if (req.user.user.admin) {
+      // If the user is an admin, fetch all histories
+      query = {};
+    }
+
+    const doc = await History.find(query).sort({ createdAt: 1 });
+
+    if (!doc || doc.length === 0) {
       return res.status(404).json({ message: 'History not found' });
     }
 
-    res.send(doc.reverse());
-  } catch {
+    res.status(200).json(doc);
+  } catch (error) {
     console.error(error);
-    res.send(500).json({ error: "internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+
+
+
 
 module.exports = {
   addWatchList,
