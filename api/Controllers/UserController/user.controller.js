@@ -340,6 +340,9 @@ const coinInitRoute = async (req, res) => {
 
 const getHistory = async (req, res) => {
   const email = req.user.user.email;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10; // Set a default limit if not provided
+
   try {
     let query = { email };
 
@@ -348,18 +351,35 @@ const getHistory = async (req, res) => {
       query = {};
     }
 
-    const doc = await History.find(query).sort({ createdAt: -1 });
+    const totalCount = await History.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
 
-    if (!doc || doc.length === 0) {
+    const skip = (page - 1) * limit;
+
+    const doc = await History.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!doc) {
       return res.status(404).json({ message: 'History not found' });
     }
 
-    res.status(200).json(doc);
+    res.status(200).json({
+      data: doc,
+      pagination: {
+        page,
+        limit,
+        totalPages,
+        totalCount
+      }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 
 
