@@ -348,7 +348,7 @@ const getHistory = async (req, res) => {
       query = {};
     }
 
-    const doc = await History.find(query).sort({ createdAt: 1 });
+    const doc = await History.find(query).sort({ createdAt: -1 });
 
     if (!doc || doc.length === 0) {
       return res.status(404).json({ message: 'History not found' });
