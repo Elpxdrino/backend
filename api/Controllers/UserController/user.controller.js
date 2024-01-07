@@ -269,7 +269,7 @@ const updateBank = async (req, res) => {
       { $set: updatedBankDetails },
       { new: true }
     )
-    res.json({message:"Succefull"});
+    res.json({ message: "Succefull" });
 
 
   } catch (error) {
@@ -341,7 +341,7 @@ const coinInitRoute = async (req, res) => {
 const getHistory = async (req, res) => {
   const email = req.user.user.email
   try {
-    const doc = await History.find({ email });
+    const doc = await History.find({ email: req.user.user.admin ? undefined : email });
 
     if (!doc) {
       return res.status(404).json({ message: 'History not found' });
