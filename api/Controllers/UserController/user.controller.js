@@ -205,11 +205,11 @@ const withdraw = async (req, res) => {
     if (!user) return res.status(404).json({ message: "user does not exist" })
     if (Number(amount) > user.amount) return res.status(400).json({ message: "Insufficient balance to make withdrawal" })
 
-      const updatedAmount = await User.findOneAndUpdate(
-        { email },
-        { $inc: { amount: -Number(amount) } },
-        { new: true }
-      );
+    const updatedAmount = await User.findOneAndUpdate(
+      { email },
+      { $inc: { amount: -Number(amount) } },
+      { new: true }
+    );
 
     // check if user dashboard exists
     // const doc = await Dashboard.findOne({ email });
@@ -346,6 +346,7 @@ const coinInitRoute = async (req, res) => {
 
 const getHistory = async (req, res) => {
   const email = req.user.user.email;
+  const type = req.query.type
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10; // Set a default limit if not provided
 
@@ -355,6 +356,10 @@ const getHistory = async (req, res) => {
     if (req.user.user.admin) {
       // If the user is an admin, fetch all histories
       query = {};
+    }
+
+    if (type && type === "Deposit" || type === "Withdrawal") {
+      query.type = type
     }
 
     const totalCount = await History.countDocuments(query);
