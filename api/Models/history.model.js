@@ -13,11 +13,6 @@ const historySchema = new mongoose.Schema(
       default: '',
     },
 
-    coin: {
-      type: String,
-      default: '',
-    },
-
     method: {
       type: String,
       default: 'Bank Transfer',

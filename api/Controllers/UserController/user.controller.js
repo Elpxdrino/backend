@@ -194,7 +194,7 @@ const fundAccount = async (req, res) => {
 };
 
 const withdraw = async (req, res) => {
-  const { method, pin, amount, coin, details } = req.body;
+  const { method, pin, amount, details } = req.body;
   const email = req.user.user.email;
 
   if (isNaN(amount)) return res.status(400).json({ message: "Invalid withdrawal amount" })
@@ -203,30 +203,36 @@ const withdraw = async (req, res) => {
     // check if user exists 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "user does not exist" })
+    if (Number(amount) > user.amount) return res.status(400).json({ message: "Insufficient balance to make withdrawal" })
+
+      const updatedAmount = await User.findOneAndUpdate(
+        { email },
+        { $inc: { amount: -Number(amount) } },
+        { new: true }
+      );
 
     // check if user dashboard exists
-    const doc = await Dashboard.findOne({ email });
-    if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
+    // const doc = await Dashboard.findOne({ email });
+    // if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
 
-    // check if user has enough amount for coin 
-    const existingIndex = doc.walletAddress.findIndex((w) => w.coin == coin);
-    if (existingIndex === -1) return res.status(400).json({ message: "User's balance for coin is 0, fund wallet to make withdrawal" })
+    // // check if user has enough amount for coin 
+    // const existingIndex = doc.walletAddress.findIndex((w) => w.coin == coin);
+    // if (existingIndex === -1) return res.status(400).json({ message: "User's balance for coin is 0, fund wallet to make withdrawal" })
 
-    // check if wallet has enough 
-    const wallet = doc.walletAddress[existingIndex]
-    if (Number(amount) > wallet.amount) return res.status(400).json({ message: "Insufficient balance to make withdrawal" })
+    // // check if wallet has enough 
+    // const wallet = doc.walletAddress[existingIndex]
+    // if (Number(amount) > wallet.amount) return res.status(400).json({ message: "Insufficient balance to make withdrawal" })
 
 
-    // deduct withdrawn amount
-    doc.walletAddress[existingIndex].amount -= Number(amount);
-    await doc.save()
+    // // deduct withdrawn amount
+    // doc.walletAddress[existingIndex].amount -= Number(amount);
+    // await doc.save()
 
     // add to history 
     await new History({
       email,
       type: "Withdrawal",
       amount,
-      coin: coin,
       status: 'Pending',
       pin,
       method,

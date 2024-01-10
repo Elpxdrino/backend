@@ -91,23 +91,29 @@ const declineWithdrawal = async (req, res) => {
 
     if (!history) return res.status(404).send({ message: 'Request not found' })
 
-    // check if user dashboard exists
-    const doc = await Dashboard.findOne({ email: history.email });
-    if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
+    const updatedAmount = await User.findOneAndUpdate(
+      { email: history.email },
+      { $inc: { amount: Number(history.amount) } },
+      { new: true }
+    );
 
-    // check if user has enough amount for coin 
-    const existingIndex = doc.walletAddress.findIndex((w) => w.coin == history.coin);
-    if (existingIndex === -1) {
-      doc.walletAddress.push({
-        coin: history.coin,
-        amount: history.amount,
-      });
-    } else {
-      // deduct withdrawn amount
-      doc.walletAddress[existingIndex].amount += Number(history.amount);
-    }
+    // // check if user dashboard exists
+    // const doc = await Dashboard.findOne({ email: history.email });
+    // if (!doc) return res.status(404).json({ message: "Dashboard does not exist" });
 
-    await doc.save()
+    // // check if user has enough amount for coin 
+    // const existingIndex = doc.walletAddress.findIndex((w) => w.coin == history.coin);
+    // if (existingIndex === -1) {
+    //   doc.walletAddress.push({
+    //     coin: history.coin,
+    //     amount: history.amount,
+    //   });
+    // } else {
+    //   // deduct withdrawn amount
+    //   doc.walletAddress[existingIndex].amount += Number(history.amount);
+    // }
+
+    // await doc.save()
 
     if (note) {
       await History.updateOne({ _id: _id }, { status: 'Declined', note: note });
