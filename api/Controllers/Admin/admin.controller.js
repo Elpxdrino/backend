@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 const getUser = async (req, res) => {
   const { email } = req.body;
-  const doc = await User.findOne({ email });
+  const doc = await User.findOne({ email }).select('-password -__v');
 
   if (!doc) {
     return res.status(404).json({ message: 'User not found' });
