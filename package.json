@@ -7,6 +7,8 @@
   "scripts": {
     "start": "node server.js"
   },
+  "author": "JUSTINA, ESTHER AND OSAZEE",
+  "license": "ISC",
   "name": "student-management-portal",
   "version": "1.0.0",
   "description": "a platform for authorizing students for an exam",
@@ -181,6 +183,7 @@
     "wrappy": "^1.0.2",
     "yocto-queue": "^0.1.0"
   },
-  "author": "JUSTINA, ESTHER AND OSAZEE",
-  "license": "ISC"
+  "engines": {
+    "node": "18.12.0"
+  }
 }
