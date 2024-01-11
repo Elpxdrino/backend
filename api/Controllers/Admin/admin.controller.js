@@ -129,7 +129,7 @@ const declineWithdrawal = async (req, res) => {
 }
 
 const getDashBoardData = async (req, res) => {
-  const { email } = req.body;
+  const email = req.query.email
 
   if (!email) {
     res.status(500).send('Error occured');
