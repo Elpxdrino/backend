@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js"
   },
-  "author": "JUSTINA, ESTHER AND OSAZEE",
+  "author": "..",
   "license": "ISC",
   "name": "student-management-portal",
   "version": "1.0.0",
